@@ -4,16 +4,17 @@
 
 template <typename Datatype>
 class MBRegister {
-public:
+ public:
+  explicit MBRegister(Datatype data)
+      : data_{data} {}
 
-    explicit MBRegister(Datatype data)
-        :data_{data} {}
+  MBRegister() = default;
 
-    MBRegister() = default;
+  void print() const { std::cout << "Data: " << data_ << std::endl; }
+  void print_type() const {
+    std::cout << "Type: " << typeid(data_).name() << std::endl;
+  }
 
-    void print() const { std::cout << "Data: " << data_ << std::endl; }
-    void print_type() const { std::cout << "Type: " << typeid(data_).name() << std::endl; }
-
-private:
-    Datatype data_{};
+ private:
+  Datatype data_{};
 };

@@ -1,92 +1,41 @@
 
+#include <array>
+#include <iostream>
+#include <vector>
+#include "mb_data_handlers.hpp"
+#include "mb_function.hpp"
 #include "mb_hello.hpp"
 #include "mb_register.hpp"
-#include <iostream>
-
-using std::cout;
-using std::endl;
-
-class Test {
-public:
-    Test() {
-        cout << "Constructor" << endl;
-    }
-
-    Test(const Test& t) {
-        cout << "Copy Constructor" << endl;
-    }
-
-    Test(Test&& t) {
-        cout << "Move Constructor" << endl;
-    }
-
-    Test& operator=(const Test& t) {
-        cout << "Copy Assignment" << endl;
-
-        return *this;
-    }
-
-    Test& operator=(Test&& t) {
-        cout << "Move Assignment" << endl;
-
-        return *this;
-    }
-
-    ~Test() {
-        cout << "Destructor" << endl;
-    }
-
-private:
-};
-
-void testfn(const Test& t) {
-    cout << "testfn start" << endl;
-
-    Test loc = t;
-
-    cout << "testfn done" << endl;
-}
 
 int main() {
-    std::cout << "Hello, world!" << std::endl;
+  std::cout << "Hello, world!" << std::endl;
 
-    hello();
+  hello();
 
-    MBRegister<double> regf{};
-    MBRegister regi{true};
+  MBRegister<double> regf{};
+  MBRegister regi{true};
 
-    regf.print();
-    regf.print_type();
-    regi.print();
-    regi.print_type();
+  regf.print();
+  regf.print_type();
+  regi.print();
+  regi.print_type();
 
-    cout << "1" << endl;
+  std::vector<int> v_i{};
+  v_i.emplace_back(1);
+  v_i.emplace_back(22);
+  std::array<float, 10> a_f{};
+  a_f[5] = 1337.0F;
 
-    Test test;
+  handle_write(v_i.cbegin(), v_i.cend());
+  handle_write(a_f.cbegin(), a_f.cend() - 1);
 
-    cout << "2" << endl;
+  std::array<uint8_t, 5> test_bytes{3, 0x1B, 0x59, 0x00, 0x10};
+  auto test_req{supermodbus::parse_req_from_bytes(test_bytes.cbegin(),
+                                                  test_bytes.cend())};
 
-    test = Test{};  // move
+  if (test_req) {
+    test_req->print();
+  }
 
-    cout << "3" << endl;
-
-    Test test2 = test;  // copy
-
-    cout << "4" << endl;
-
-    test2 = {};  // move
-
-    cout << "5" << endl;
-
-    test = test2;
-
-    cout << "6" << endl;
-
-    test2 = std::move(test);
-
-    cout << "7" << endl;
-
-    testfn({});
-
-    return 0;
+  return 0;
 }
