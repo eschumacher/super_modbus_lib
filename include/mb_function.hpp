@@ -6,29 +6,42 @@
 
 namespace supermodbus {
 
+// TODO: uncomment class
+enum /*class*/ FnCode {
+  // In Decimal
+  // If changed, check if MBFunctionCode(uint8_t) constructor impacted
+  kUnsupported = -1,
+  kInvalid = 0,
+  kReadCoils = 1,
+  kReadDI = 2,
+  kReadHR = 3,
+  kReadIR = 4,
+  kWriteSingleCoil = 5,
+  kWriteSingleReg = 6,
+  kReadExceptionStatus = 7,
+  kDiagnostics = 8,
+  kGetComEventCounter = 11,
+  kGetComEventLog = 12,
+  kWriteMultCoils = 15,
+  kWriteMultRegs = 16,
+  kReportSlaveID = 17,
+  kReadFileRecord = 20,
+  kWriteFileRecord = 21,
+  kMaskWriteReg = 22,
+  kReadWriteMultRegs = 23,
+  kReadFIFOQueue = 24
+};
+
 class MBFunctionCode {
  public:
-  enum FnCode {
-    // If changed, check if MBFunctionCode(uint8_t) constructor impacted
-    kInvalid = 0,
-    kReadCoils,
-    kReadDI,
-    kReadHR,
-    kReadIR,
-    kWriteSingleCoil,
-    kWriteSingleReg,
-    kWriteMultRegs = 16,
-    kFnCodeMax
-  };
-
   explicit MBFunctionCode(FnCode code)
       : code_{code} {}
 
   explicit MBFunctionCode(uint8_t const &code) {
     // Must maintain this logic for fn code gaps if FnCode enum definition
     // changes
-    if ((code > kInvalid && code <= kWriteSingleReg) ||
-        code == kWriteMultRegs) {
+    if ((code > FnCode::kInvalid && code <= FnCode::kWriteSingleReg) ||
+        code == FnCode::kWriteMultRegs) {
       code_ = static_cast<FnCode>(code);
     }
   }
@@ -38,7 +51,7 @@ class MBFunctionCode {
   [[nodiscard]] FnCode get_code() const noexcept { return code_; }
 
  private:
-  FnCode code_{kInvalid};
+  FnCode code_{FnCode::kInvalid};
 };
 
 struct MBAddressSpan {
@@ -60,7 +73,7 @@ class MBRequest {
   }
 
  private:
-  MBFunctionCode fn_code_{MBFunctionCode::kInvalid};
+  MBFunctionCode fn_code_{kInvalid};
   MBAddressSpan addr_span_{};
 };
 
