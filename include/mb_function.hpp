@@ -6,47 +6,75 @@
 
 namespace supermodbus {
 
-// TODO: uncomment class
-enum /*class*/ FnCode {
-  // In Decimal
-  // If changed, check if MBFunctionCode(uint8_t) constructor impacted
-  kUnsupported = -1,
-  kInvalid = 0,
-  kReadCoils = 1,
-  kReadDI = 2,
-  kReadHR = 3,
-  kReadIR = 4,
-  kWriteSingleCoil = 5,
-  kWriteSingleReg = 6,
-  kReadExceptionStatus = 7,
-  kDiagnostics = 8,
-  kGetComEventCounter = 11,
-  kGetComEventLog = 12,
-  kWriteMultCoils = 15,
-  kWriteMultRegs = 16,
-  kReportSlaveID = 17,
-  kReadFileRecord = 20,
-  kWriteFileRecord = 21,
-  kMaskWriteReg = 22,
-  kReadWriteMultRegs = 23,
-  kReadFIFOQueue = 24
-};
-
 class MBFunctionCode {
  public:
-  explicit MBFunctionCode(FnCode code)
-      : code_{code} {}
+  enum FnCode {
+    kUnsupported = -1,
+    kInvalid = 0,
+    kReadCoils = 1,
+    kReadDI = 2,
+    kReadHR = 3,
+    kReadIR = 4,
+    kWriteSingleCoil = 5,
+    kWriteSingleReg = 6,
+    kReadExceptionStatus = 7,
+    kDiagnostics = 8,
+    kGetComEventCounter = 11,
+    kGetComEventLog = 12,
+    kWriteMultCoils = 15,
+    kWriteMultRegs = 16,
+    kReportSlaveID = 17,
+    kReadFileRecord = 20,
+    kWriteFileRecord = 21,
+    kMaskWriteReg = 22,
+    kReadWriteMultRegs = 23,
+    kReadFIFOQueue = 24,
+    kMax = kReadFIFOQueue
+  };
 
-  explicit MBFunctionCode(uint8_t const &code) {
-    // Must maintain this logic for fn code gaps if FnCode enum definition
-    // changes
-    if ((code > FnCode::kInvalid && code <= FnCode::kWriteSingleReg) ||
-        code == FnCode::kWriteMultRegs) {
-      code_ = static_cast<FnCode>(code);
+  MBFunctionCode() = default;
+
+  explicit MBFunctionCode(FnCode code) {
+    if (code == kInvalid || code > kMax) {
+      code_ = kInvalid;
+    } else {
+      switch (code) {
+        // TODO: when adding support for a FnCode, handle here
+        case kReadHR: {
+          code_ = static_cast<FnCode>(code);
+          break;
+        }
+        case kReadCoils:
+        case kReadDI:
+        case kReadIR:
+        case kWriteSingleCoil:
+        case kWriteSingleReg:
+        case kReadExceptionStatus:
+        case kDiagnostics:
+        case kGetComEventCounter:
+        case kGetComEventLog:
+        case kWriteMultCoils:
+        case kWriteMultRegs:
+        case kReportSlaveID:
+        case kReadFileRecord:
+        case kWriteFileRecord:
+        case kMaskWriteReg:
+        case kReadWriteMultRegs:
+        case kReadFIFOQueue:
+        default: {
+          code_ = kUnsupported;
+          break;
+        }
+      }
     }
   }
 
-  [[nodiscard]] bool is_valid() const noexcept { return code_ != kInvalid; }
+  explicit MBFunctionCode(uint8_t const &code)
+      : MBFunctionCode{static_cast<FnCode>(code)} {}
+
+  [[nodiscard]] bool is_valid() const noexcept {
+    return code_ != kInvalid && code_ != kUnsupported;
+  }
 
   [[nodiscard]] FnCode get_code() const noexcept { return code_; }
 
@@ -73,17 +101,19 @@ class MBRequest {
   }
 
  private:
-  MBFunctionCode fn_code_{kInvalid};
+  MBFunctionCode fn_code_{};
   MBAddressSpan addr_span_{};
 };
 
 template <typename Iter>
 [[nodiscard]] std::optional<MBRequest> parse_req_from_bytes(Iter begin,
                                                             Iter end) {
-  MBRequest mb_req{MBFunctionCode{*begin}, {*(begin + 1), *(begin + 3)}};
+  MBRequest mb_req{MBFunctionCode{*(begin + 1)}, {*(begin + 2), *(begin + 4)}};
   if (mb_req.is_valid()) {
     return mb_req;
   }
+
+  mb_req.print();
 
   return {};
 }

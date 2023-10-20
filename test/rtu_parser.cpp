@@ -14,7 +14,7 @@ uint8_t low_byte(uint16_t value) { return value & 0xFF; }
 
 TEST(RTUParser, ReadHR) {
   uint8_t slave_id = 1;
-  uint8_t fn_code = FnCode::kReadHR;
+  uint8_t fn_code = MBFunctionCode::kReadHR;
   uint16_t address = htobe16(3001);
   uint16_t reg_count = htobe16(1);
   uint16_t crc = htobe16(52055);
