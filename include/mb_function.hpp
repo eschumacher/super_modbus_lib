@@ -1,8 +1,11 @@
 
+#pragma once
+
 #include <array>
 #include <cstdint>
 #include <iostream>
 #include <optional>
+#include <span>
 
 namespace supermodbus {
 
@@ -105,10 +108,8 @@ class MBRequest {
   MBAddressSpan addr_span_{};
 };
 
-template <typename Iter>
-[[nodiscard]] std::optional<MBRequest> parse_req_from_bytes(Iter begin,
-                                                            Iter end) {
-  MBRequest mb_req{MBFunctionCode{*(begin + 1)}, {*(begin + 2), *(begin + 4)}};
+[[nodiscard]] std::optional<MBRequest> parse_req_from_bytes(auto &&bytes) {
+  MBRequest mb_req{MBFunctionCode{bytes[1]}, {bytes[2], bytes[4]}};
   if (mb_req.is_valid()) {
     return mb_req;
   }

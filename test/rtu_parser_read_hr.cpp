@@ -2,19 +2,15 @@
 #include <gtest/gtest.h>
 #include <array>
 #include <mb_function.hpp>
+#include "rtu_parser_general.hpp"
 
 namespace {
-
-constexpr uint8_t kReadRequestSize{8};
-using RawReadRequest = std::array<uint8_t, kReadRequestSize>;
 
 TEST(RTUParserReadHR, Valid) {
   constexpr RawReadRequest kValidRequest{0x01, 0x03, 0x0B, 0xB9,
                                          0x00, 0x01, 0x57, 0xCB};
 
-  auto test_req{supermodbus::parse_req_from_bytes(kValidRequest.cbegin(),
-                                                  kValidRequest.cend())};
-  EXPECT_TRUE(test_req);
+  parse_and_check(kValidRequest, true);
 }
 
 TEST(RTUParserReadHR, AddressBounds) {
@@ -23,13 +19,8 @@ TEST(RTUParserReadHR, AddressBounds) {
   constexpr RawReadRequest kMaxAddress{0x01, 0x03, 0xFF, 0xFF,
                                        0x00, 0x01, 0x84, 0x2E};
 
-  auto test_req{supermodbus::parse_req_from_bytes(kMinAddress.cbegin(),
-                                                  kMinAddress.cend())};
-  EXPECT_TRUE(test_req);
-
-  test_req = supermodbus::parse_req_from_bytes(kMaxAddress.cbegin(),
-                                               kMaxAddress.cend());
-  EXPECT_TRUE(test_req);
+  parse_and_check(kMinAddress, true);
+  parse_and_check(kMaxAddress, true);
 }
 
 TEST(RTUParserReadHR, QuantityBounds) {
@@ -42,21 +33,10 @@ TEST(RTUParserReadHR, QuantityBounds) {
   constexpr RawReadRequest kValidAddressBoundary{0x01, 0x03, 0xFF, 0x83,
                                                  0x00, 0x7D, 0x44, 0x17};
 
-  auto test_req{supermodbus::parse_req_from_bytes(kTooLittle.cbegin(),
-                                                  kTooLittle.cend())};
-  EXPECT_FALSE(test_req);
-
-  test_req =
-      supermodbus::parse_req_from_bytes(kTooMany.cbegin(), kTooMany.cend());
-  EXPECT_FALSE(test_req);
-
-  test_req = supermodbus::parse_req_from_bytes(kInvalidAddressBoundary.cbegin(),
-                                               kInvalidAddressBoundary.cend());
-  EXPECT_FALSE(test_req);
-
-  test_req = supermodbus::parse_req_from_bytes(kValidAddressBoundary.cbegin(),
-                                               kValidAddressBoundary.cend());
-  EXPECT_TRUE(test_req);
+  parse_and_check(kTooLittle, false);
+  parse_and_check(kTooMany, false);
+  parse_and_check(kInvalidAddressBoundary, false);
+  parse_and_check(kValidAddressBoundary, true);
 }
 
 TEST(RTUParserReadHR, SlaveAddressBounds) {
@@ -65,13 +45,8 @@ TEST(RTUParserReadHR, SlaveAddressBounds) {
   constexpr RawReadRequest kMaxSlaveAddr{0xF7, 0x03, 0x0B, 0xB9,
                                          0x00, 0x01, 0x43, 0x5D};
 
-  auto test_req{supermodbus::parse_req_from_bytes(kInvalidSlaveAddr.cbegin(),
-                                                  kInvalidSlaveAddr.cend())};
-  EXPECT_FALSE(test_req);
-
-  test_req = supermodbus::parse_req_from_bytes(kMaxSlaveAddr.cbegin(),
-                                               kMaxSlaveAddr.cend());
-  EXPECT_TRUE(test_req);
+  parse_and_check(kInvalidSlaveAddr, false);
+  parse_and_check(kMaxSlaveAddr, true);
 }
 
 TEST(RTUParserReadHR, CRC) {
@@ -80,31 +55,22 @@ TEST(RTUParserReadHR, CRC) {
   constexpr RawReadRequest kValidCRC{0x01, 0x03, 0x0B, 0xB9,
                                      0x00, 0x01, 0x57, 0xCB};
 
-  auto test_req{supermodbus::parse_req_from_bytes(kInvalidCRC.cbegin(),
-                                                  kInvalidCRC.cend())};
-  EXPECT_FALSE(test_req);
-
-  test_req =
-      supermodbus::parse_req_from_bytes(kValidCRC.cbegin(), kValidCRC.cend());
-  EXPECT_TRUE(test_req);
+  parse_and_check(kInvalidCRC, false);
+  parse_and_check(kValidCRC, true);
 }
 
 TEST(RTUParserReadHR, TooLittleBytes) {
   constexpr std::array<uint8_t, 7> kShortRequest{0x01, 0x03, 0x0B, 0xB9,
                                                  0x00, 0x01, 0x57};
 
-  auto test_req{supermodbus::parse_req_from_bytes(kShortRequest.cbegin(),
-                                                  kShortRequest.cend())};
-  EXPECT_FALSE(test_req);
+  parse_and_check(kShortRequest, false);
 }
 
 TEST(RTUParserReadHR, TooManyBytes) {
   constexpr std::array<uint8_t, 9> kLongRequest{0x01, 0x03, 0x0B, 0xB9, 0x00,
                                                 0x01, 0x57, 0xCB, 0x01};
 
-  auto test_req{supermodbus::parse_req_from_bytes(kLongRequest.cbegin(),
-                                                  kLongRequest.cend())};
-  EXPECT_FALSE(test_req);
+  parse_and_check(kLongRequest, false);
 }
 
 }  // namespace
