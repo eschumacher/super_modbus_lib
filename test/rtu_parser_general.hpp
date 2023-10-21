@@ -11,6 +11,7 @@
 constexpr uint8_t kReadRequestSize{8};
 using RawReadRequest = std::array<uint8_t, kReadRequestSize>;
 
+// TODO: check for an expected error code instead of true/false
 void parse_and_check(auto &&req, bool expected_result) {
   auto test_req{
       supermodbus::parse_req_from_bytes(std::forward<decltype(req)>(req))};
