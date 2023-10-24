@@ -98,7 +98,7 @@ class MBRequest {
 
   [[nodiscard]] bool is_valid() const { return fn_code_.is_valid(); }
 
-  void print() {
+  void print() const {
     std::cout << "MBRequest: " << is_valid() << ", " << fn_code_.get_code()
               << std::endl;
   }
