@@ -24,7 +24,7 @@ inline uint32_t be_swap<uint32_t>(uint32_t value) {
 
 template <>
 inline uint64_t be_swap<uint64_t>(uint64_t value) {
-  return be32toh(value);
+  return be64toh(value);
 }
 
 template <typename T>
@@ -42,7 +42,7 @@ inline uint32_t le_swap<uint32_t>(uint32_t value) {
 
 template <>
 inline uint64_t le_swap<uint64_t>(uint64_t value) {
-  return le32toh(value);
+  return le64toh(value);
 }
 
 template <typename T>
