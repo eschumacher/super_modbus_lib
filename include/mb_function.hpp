@@ -4,11 +4,13 @@
 #include <endian.h>
 #include <array>
 #include <cstdint>
+#include <ios>
 #include <iostream>
 #include <limits>
 #include <optional>
 #include <span>
 #include <stdexcept>
+#include "endian_helpers.hpp"
 
 namespace supermodbus {
 
@@ -119,17 +121,6 @@ constexpr uint8_t kRTUReqIndexCRC{6};
 constexpr uint8_t kRTUReqTotalBytes{8};
 constexpr uint8_t kMaxNumRegs{125};
 
-uint16_t span_to_uint16_t(auto &&span, std::size_t offset = 0) {
-  if (offset + 1 >= span.size()) {
-    throw std::out_of_range("Span does not have enough data.");
-  }
-
-  uint16_t result =
-      (static_cast<uint16_t>(span[offset]) << 8) | span[offset + 1];
-
-  return result;
-}
-
 [[nodiscard]] std::optional<MBRequest> parse_req_from_bytes(auto &&bytes) {
   if (sizeof(bytes) != kRTUReqTotalBytes) {
     std::cerr << "Invalid number of bytes!\n";
@@ -138,18 +129,18 @@ uint16_t span_to_uint16_t(auto &&span, std::size_t offset = 0) {
 
   uint8_t slave_id{bytes[kRTUReqIndexSlaveID]};
   MBFunctionCode fn_code{bytes[kRTUReqIndexFunctionCode]};
-  uint16_t start_addr =
-      be16toh(span_to_uint16_t(bytes, kRTUReqIndexStartAddress));
-  uint16_t num_regs = be16toh(span_to_uint16_t(bytes, kRTUReqIndexRegCount));
+  uint16_t start_addr{
+      from_big_endian<uint16_t>(bytes, kRTUReqIndexStartAddress)};
+  uint16_t num_regs{from_big_endian<uint16_t>(bytes, kRTUReqIndexRegCount)};
   MBAddressSpan addr_span{start_addr, num_regs};
-  uint16_t crc{be16toh(span_to_uint16_t(bytes, kRTUReqIndexCRC))};
+  uint16_t crc{from_big_endian<uint16_t>(bytes, kRTUReqIndexCRC)};
 
   if (num_regs > kMaxNumRegs) {
     std::cerr << "Exceed max number of registers!\n";
     return {};
   }
 
-  if (static_cast<uint32_t>(num_regs) + start_addr >
+  if (static_cast<uint32_t>(num_regs - 1) + start_addr >
       std::numeric_limits<uint16_t>::max()) {
     std::cerr << "Boundary exception: requested registers exceeds 65535!\n";
     return {};
