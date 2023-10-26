@@ -46,7 +46,7 @@ inline uint64_t le_swap<uint64_t>(uint64_t value) {
 }
 
 template <typename T>
-T from_big_endian(auto &&span, std::size_t offset = 0) {
+[[nodiscard]] T from_big_endian(auto &&span, std::size_t offset = 0) {
   if (offset + sizeof(T) - 1 >= span.size()) {
     throw std::out_of_range("Span does not have enough data.");
   }
@@ -58,7 +58,7 @@ T from_big_endian(auto &&span, std::size_t offset = 0) {
 }
 
 template <typename T>
-T from_little_endian(auto &&span, std::size_t offset = 0) {
+[[nodiscard]] T from_little_endian(auto &&span, std::size_t offset = 0) {
   if (offset + sizeof(T) - 1 >= span.size()) {
     throw std::out_of_range("Span does not have enough data.");
   }
