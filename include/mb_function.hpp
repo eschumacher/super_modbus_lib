@@ -97,6 +97,8 @@ struct MBAddressSpan {
   uint16_t reg_count_{0};
 };
 
+constexpr uint8_t kMaxSlaveID{247};
+
 class MBRequest {
  public:
   MBRequest(uint8_t slave_id, MBFunctionCode fn_code, MBAddressSpan addr_span)
@@ -104,7 +106,9 @@ class MBRequest {
         fn_code_{fn_code},
         addr_span_{addr_span} {}
 
-  [[nodiscard]] bool is_valid() const { return fn_code_.is_valid(); }
+  [[nodiscard]] bool is_valid() const {
+    return fn_code_.is_valid() && slave_id_ <= kMaxSlaveID;
+  }
 
   void print() const {
     std::cout << "MBRequest: " << is_valid() << ", " << fn_code_.get_code()
