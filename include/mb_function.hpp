@@ -146,9 +146,7 @@ constexpr uint8_t kMaxNumRegs{125};
     return {};
   }
 
-  // TODO: check CRC
-
-  MBRequest mb_req{fn_code, addr_span};
+  MBRequest mb_req{/*slave_id,*/ fn_code, addr_span};
   if (mb_req.is_valid()) {
     return mb_req;
   }

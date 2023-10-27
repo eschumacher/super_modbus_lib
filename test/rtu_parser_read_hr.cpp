@@ -1,6 +1,7 @@
 
 #include <gtest/gtest.h>
 #include <array>
+#include <mb_crc16.hpp>
 #include <mb_function.hpp>
 #include "rtu_parser_general.hpp"
 
