@@ -64,7 +64,7 @@ TEST(RTUParserReadHR, TooLittleBytes) {
   constexpr std::array<uint8_t, 7> kShortRequest{0x01, 0x03, 0x0B, 0xB9,
                                                  0x00, 0x01, 0x57};
 
-  parse_and_check(kShortRequest, false);
+  parse_and_check(std::span(kShortRequest), false);
 }
 
 TEST(RTUParserReadHR, TooManyBytes) {

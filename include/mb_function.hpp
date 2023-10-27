@@ -6,7 +6,9 @@
 #include <cstdint>
 #include <ios>
 #include <iostream>
+#include <iterator>
 #include <limits>
+#include <mb_crc16.hpp>
 #include <optional>
 #include <span>
 #include <stdexcept>
@@ -97,8 +99,9 @@ struct MBAddressSpan {
 
 class MBRequest {
  public:
-  MBRequest(MBFunctionCode fn_code, MBAddressSpan addr_span)
-      : fn_code_{fn_code},
+  MBRequest(uint8_t slave_id, MBFunctionCode fn_code, MBAddressSpan addr_span)
+      : slave_id_{slave_id},
+        fn_code_{fn_code},
         addr_span_{addr_span} {}
 
   [[nodiscard]] bool is_valid() const { return fn_code_.is_valid(); }
@@ -109,6 +112,7 @@ class MBRequest {
   }
 
  private:
+  uint8_t slave_id_{};
   MBFunctionCode fn_code_{};
   MBAddressSpan addr_span_{};
 };
@@ -121,8 +125,9 @@ constexpr uint8_t kRTUReqIndexCRC{6};
 constexpr uint8_t kRTUReqTotalBytes{8};
 constexpr uint8_t kMaxNumRegs{125};
 
-[[nodiscard]] std::optional<MBRequest> parse_req_from_bytes(auto &&bytes) {
-  if (sizeof(bytes) != kRTUReqTotalBytes) {
+[[nodiscard]] inline std::optional<MBRequest> parse_req_from_bytes(
+    std::span<uint8_t const> bytes) {
+  if (bytes.size() != kRTUReqTotalBytes) {
     std::cerr << "Invalid number of bytes!\n";
     return {};
   }
@@ -146,7 +151,14 @@ constexpr uint8_t kMaxNumRegs{125};
     return {};
   }
 
-  MBRequest mb_req{/*slave_id,*/ fn_code, addr_span};
+  uint16_t crc_check = htobe16(mb_crc16(bytes.subspan(0, 6)));
+  if (crc_check != crc) {
+    std::cerr << "Invalid CRC! Received: " << crc << ", expected: " << crc_check
+              << "\n";
+    return {};
+  }
+
+  MBRequest mb_req{slave_id, fn_code, addr_span};
   if (mb_req.is_valid()) {
     return mb_req;
   }
