@@ -149,6 +149,11 @@ constexpr uint8_t kMaxNumRegs{125};
     return {};
   }
 
+  if (num_regs == 0) {
+    std::cerr << "Must request at least 1 register!\n";
+    return {};
+  }
+
   if (static_cast<uint32_t>(num_regs - 1) + start_addr >
       std::numeric_limits<uint16_t>::max()) {
     std::cerr << "Boundary exception: requested registers exceeds 65535!\n";
