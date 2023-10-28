@@ -49,14 +49,20 @@ class MBFunctionCode {
       code_ = kInvalid;
     } else {
       switch (code) {
-        // TODO: when adding support for a FnCode, handle here
-        case kReadHR: {
+        /**
+         * SUPPORTED FUNCTIONS
+         * When adding support for a FnCode, handle here
+         */
+        case kReadHR:
+        case kReadIR: {
           code_ = static_cast<FnCode>(code);
           break;
         }
+        /**
+         * UNSUPPORTED FUNCTIONS
+         */
         case kReadCoils:
         case kReadDI:
-        case kReadIR:
         case kWriteSingleCoil:
         case kWriteSingleReg:
         case kReadExceptionStatus:
@@ -131,6 +137,7 @@ constexpr uint8_t kMaxNumRegs{125};
 
 [[nodiscard]] inline std::optional<MBRequest> parse_req_from_bytes(
     std::span<uint8_t const> bytes) {
+  // TODO: refactor to support various types of modbus request function codes
   if (bytes.size() != kRTUReqTotalBytes) {
     std::cerr << "Invalid number of bytes!\n";
     return {};
