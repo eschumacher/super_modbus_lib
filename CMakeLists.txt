@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_library(super_modbus_lib src/mb_hello.cpp)
+add_library(super_modbus_lib src/mb_function.cpp)
 
 target_include_directories(super_modbus_lib
     SYSTEM
