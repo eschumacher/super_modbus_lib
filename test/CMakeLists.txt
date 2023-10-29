@@ -30,3 +30,15 @@ endif()
 
 include(GoogleTest)
 gtest_discover_tests(super_modbus_tests)
+
+option(PROFILING "Enable profiling (valgrind, memcheck)" ON)
+if (PROFILING)
+    include(AddValgrind)
+    AddValgrind(super_modbus_tests)
+
+    include(AddMemCheck)
+    AddMemCheck(super_modbus_tests)
+
+    include(AddCppCheck)
+    AddCppCheck(super_modbus_tests)
+endif()
