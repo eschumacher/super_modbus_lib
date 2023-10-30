@@ -1,56 +1,42 @@
-- name: super_modbus_lib CI
-  on:
-    push:
-      branches:
-        - master
-    pull_request:
-      branches:
-        - master
-  jobs:
-    test-and-coverage:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v4
+name: super_modbus_lib CI
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  test-and-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-        - name: Install Dependencies
-          run: sudo apt update -q && sudo apt install llvm-15 clang-15 lcov gawk cppcheck valgrind -q -y
+      - name: Install Dependencies
+        run: sudo apt update -q && sudo apt install llvm-15 clang-15 lcov gawk cppcheck valgrind -q -y
 
-        - name: Create Build Dir
-          run: mkdir build
+      - name: Create Build Dir
+        run: mkdir build
 
-        - name: Configure
-          working-directory: build
-          run: cmake .. -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15 -DCMAKE_BUILD_TYPE=Debug
+      - name: Configure
+        working-directory: build
+        run: cmake .. -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15 -DCMAKE_BUILD_TYPE=Debug
 
-        - name: Build
-          working-directory: build
-          run: cmake --build . -j 2
+      - name: Build
+        working-directory: build
+        run: cmake --build . -j 2
 
-        - name: Test
-          working-directory: build
-          run: ctest --output-on-failure --no-tests=error -j 2
+      - name: Test
+        working-directory: build
+        run: ctest --output-on-failure --no-tests=error -j 2
 
-        - name: Process coverage info
-          working-directory: build
-          run: cmake --build . -t coverage-super_modbus_tests
+      - name: Process coverage info
+        working-directory: build
+        run: cmake --build . -t coverage-super_modbus_tests
 
-        - name: Submit to codecov.io
-          uses: codecov/codecov-action@v3
-          env:
-            CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-          with:
-            file: build/filtered-super_modbus_tests.info
-
-
-
-
-
-
-
-  jobs:
-    run:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v2
-        - name:
+      - name: Submit to codecov.io
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          file: build/filtered-super_modbus_tests.info
