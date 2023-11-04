@@ -11,6 +11,8 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 add_executable(super_modbus_tests
+    endian_helpers.cpp
+    gtest_test.cpp
     rtu_parser_read_hr.cpp
     rtu_parser_read_ir.cpp
 )
