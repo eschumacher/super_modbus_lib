@@ -2,6 +2,7 @@
 #include "endian_helpers.hpp"
 #include <gtest/gtest.h>
 #include <array>
+#include <stdexcept>
 
 namespace {
 
@@ -75,6 +76,18 @@ TEST(EndianHelpers, QWordBE) {
   } else {
     EXPECT_EQ(result, kSwapped);
   }
+}
+
+TEST(EndianHelpers, FromBigEndianTooSmall) {
+  constexpr std::array<uint8_t, 2> kBytes{0x12, 0x34};
+  EXPECT_THROW(auto result = supermodbus::from_big_endian<uint32_t>(kBytes),
+               std::out_of_range);
+}
+
+TEST(EndianHelpers, FromLittleEndianTooSmall) {
+  constexpr std::array<uint8_t, 2> kBytes{0x12, 0x34};
+  EXPECT_THROW(auto result = supermodbus::from_little_endian<uint32_t>(kBytes),
+               std::out_of_range);
 }
 
 }  // namespace
