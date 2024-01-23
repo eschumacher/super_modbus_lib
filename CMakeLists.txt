@@ -26,8 +26,11 @@ if (BUILD_TESTS)
     endif()
 endif()
 
+option(BUILD_EXAMPLES "Build examples" ON)
+if (BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
-
-add_subdirectory(examples)
