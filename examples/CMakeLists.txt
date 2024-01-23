@@ -1,0 +1,5 @@
+add_executable(super_modbus_lib_example example_master_rtu.cpp)
+
+target_link_libraries(super_modbus_lib_example PRIVATE super_modbus_lib)
+
+target_include_directories(super_modbus_lib_example PRIVATE ../include)

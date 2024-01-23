@@ -21,8 +21,11 @@ class MBRequest {
   }
 
   void print() const {
-    std::cout << "MBRequest: " << is_valid() << ", " << fn_code_.get_code()
-              << std::endl;
+    std::cout << "MBRequest:\n";
+    std::cout << "\t" << (is_valid() ? "Valid" : "Invalid") << "\n";
+    std::cout << "\tFunction Code: " << fn_code_.get_code() << "\n";
+    std::cout << "\tStart Address: " << addr_span_.first_address_ << "\n";
+    std::cout << "\tNum Registers: " << addr_span_.reg_count_ << std::endl;
   }
 
  private:
